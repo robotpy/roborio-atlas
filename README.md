@@ -1,4 +1,4 @@
-ATLAS prebuilt binaries (NI LabVIEW 17.0)
+ATLAS prebuilt binaries (NI LabVIEW 18.0)
 =========================================
 
 ATLAS is tricky to build, so the binaries are provided here (in the releases
@@ -7,7 +7,7 @@ to build it, here's how I did it.
 
 Versions:
 
-* libgfortran 5.3.0
+* libgfortran 6.3.0
 * ATLAS 3.10.3
 * LAPACK 3.7.1
 
@@ -27,7 +27,7 @@ Build fortran
 
 	git clone https://github.com/ni/nilrt.git
 	cd nilrt
-	git checkout nilrt/17.0
+	git checkout nilrt/18.0
 
 	MACHINE=xilinx-zynq DISTRO=nilrt ./nibb.sh config
 
@@ -36,8 +36,17 @@ Modify `conf/local.conf', add the following to the end:
 	FORTRAN_forcevariable = ",fortran"
 	RUNTIMETARGET_append_pn-gcc-runtime = " libquadmath"
 	
-	PREFERRED_VERSION_libgfortran="5.3.0"
-	PREFERRED_VERSION_nativesdk_libgfortran="5.3.0"
+	PREFERRED_VERSION_libgfortran="6.3.0"
+	PREFERRED_VERSION_nativesdk_libgfortran="6.3.0"
+
+The openembedded release that NI is using requires some patches:
+
+	pushd sources/openembedded-core/meta/recipes-devtools/gcc/
+	git fetch https://github.com/openembedded/openembedded-core
+	git cherry-pick 2c2f20a9756eccafac776e45e319af7666e6da96
+	git cherry-pick 00fba52c8a6f6383137cf89fc7aa34cc3e2ff45f
+	git cherry-pick 753de3328d36b95c029d2946660f80e083823678
+	popd
 
 Now, you can build fortran:
 
@@ -68,7 +77,7 @@ Building ATLAS (RoboRIO)
 Warning: ATLAS needs a lot of memory, so grab an empty USB memory stick (4GB+)
 and convert it to a linux swap partition, and then activate the swap.
 
-Download ATLAS 3.10.3 and LAPACK 3.7.1. Copy to the RoboRIO, and unpack 
+Download ATLAS 3.10.3 and LAPACK 3.8.0. Copy to the RoboRIO, and unpack
 ATLAS. Execute:
 
 	opkg install bzip2 gcc-symlinks binutils-symlinks make
@@ -79,7 +88,7 @@ ATLAS. Execute:
 	mkdir BUILD
 	cd BUILD
 
-	../configure --shared --with-netlib-lapack-tarfile=/home/admin/lapack-3.7.1.tgz -m 667
+	../configure --shared --with-netlib-lapack-tarfile=/home/admin/lapack-3.8.0.tgz -m 667
 	make
 	make check
 	make install
